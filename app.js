@@ -3,7 +3,7 @@ import cors from 'cors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import * as db from "./database.js";
-import {refreshTokens, generateToken, generateRefreshToken, generateAccessToken, updateTokens} from "./token.js";
+import {refreshTokens,generateAccessToken, generateRefreshToken, verifyToken, updateTokens} from "./token.js";
 import dotenv from "dotenv";
 
 const app = express();
@@ -29,13 +29,10 @@ app.post('/registerUser', async (req, res) => {
             console.log("Creating new user now");
             const newUser = await db.createUser(user, hashedPassword, firstName, lastName);
 
-            // const accessToken = generateAccessToken({user: req.body.u_name});
-            // const refreshToken = generateRefreshToken({user: req.body.u_name});
-            // newUser.accessToken = accessToken;
-            // newUser.refreshToken = refreshToken;
-
-            const token = generateToken({user: req.body.u_name});
-            newUser.token = token;
+            const accessToken = generateAccessToken({user: req.body.u_name});
+            const refreshToken = generateRefreshToken({user: req.body.u_name});
+            newUser.accessToken = accessToken;
+            newUser.refreshToken = refreshToken;
 
             res.send(newUser).status(201);
         }
@@ -65,17 +62,13 @@ app.post('/login', async (req, res) =>{
             if(await bcrypt.compare(password, hashedPassword)){
                 console.log("User login info matches");
 
-                // const accessToken = generateAccessToken({user: req.body.u_name});
-                // const refreshToken = generateRefreshToken({user: req.body.u_name});
-                // checkUser.accessToken = accessToken;
-                // checkUser.refreshToken = refreshToken;
-                // console.log(checkUser);
-
-                const token = generateToken({user: req.body.u_name});
-                checkUser.token = token;
+                const accessToken = generateAccessToken({user: req.body.u_name});
+                const refreshToken = generateRefreshToken({user: req.body.u_name});
+                checkUser.accessToken = accessToken;
+                checkUser.refreshToken = refreshToken;
+                console.log(checkUser);
 
                 res.send(checkUser).status(200);
-                // res.send(`Welcome back ${user}!`).status(200);
             } else{
                 console.log("Incorrect password");
                 res.sendStatus(401);
@@ -89,7 +82,28 @@ app.post('/login', async (req, res) =>{
 }); // end of app.post login user
 
 
+app.post('/authenticate/user', verifyToken, (req, res) => {
+    console.log("Test token verification app post")
+    console.log(req.body);
 
+    // req.user is object that contains user(u_name), iat, and exp
+    res.send(`${req.user.user} successfully accessed post`).status(200);
+});
+
+app.post('/updateTokens', (req, res) => {
+
+});
+
+app.get('/healthStats/:id', async (req, res) => {
+    const uid = req.params.id;
+    try {
+        const healthStat = await db.getUserStats(uid);
+        res.send(healthStat).status(200);
+    } catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+    }
+});
 
 
 

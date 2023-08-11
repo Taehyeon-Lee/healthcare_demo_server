@@ -47,6 +47,20 @@ export async function deleteUser(uname){
     return uname;
 };
 
+export async function getUserStats(uid){
+    const query = "Select * from health_stat where user_id = ?";
+    const [rows] = await pool.query(query, [uid]);
+    return rows;
+}
+
+export async function addUserStat(blood_pressure_low, blood_pressure_high, blood_glucose, user_id, date){
+    const query = `INSERT INTO health_stat (blood_pressure_low, blood_pressure_high, 
+                         blood_glucose, user_id, date) VALUES
+                        (?, ?, ?, ?, ?)`;
+    const [result] = await pool.query(query, [blood_pressure_low, blood_pressure_high, blood_glucose, user_id, date]);
+    return;
+}
+
 
 // const getAll = await getAllCredentials();
 // console.log(getAll);
