@@ -5,24 +5,36 @@ dotenv.config();
 
 let refreshTokens = [];
 
-// TODO: extend expiration time for tokens
-// export function generateToken(user) {
-//     return jwt.sign(user, process.env.TOKEN_SECRET, {expiresIn: "10m"});
-// }
 
+/**
+ * This function is used to generate an access token
+ * @param user
+ * @returns {*}
+ */
 // accessTokens
 export function generateAccessToken(user) {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "1m"});
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "10m"});
 }
 
+/**
+ * This function is used to generate a refresh token
+ * @param user
+ * @returns {*}
+ */
 // refreshTokens
 export function generateRefreshToken(user) {
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "10m"});
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "20m"});
     refreshTokens.push(refreshToken);
     return refreshToken;
 }
 
 
+/**
+ * This function is used to update the tokens
+ * @param user
+ * @param oldToken
+ * @returns {string}
+ */
 export function updateTokens(user, oldToken) {
     // remove old refresh token from the array
     refreshTokens = refreshTokens.filter(token => token !== oldToken);
@@ -40,6 +52,13 @@ export function updateTokens(user, oldToken) {
     return tokensJson;
 }
 
+/**
+ * This function is used to verify the token
+ * @param req
+ * @param res
+ * @param next
+ * @returns {*}
+ */
 export function verifyToken (req, res, next) {
     // in the request header, the token is stored in the "x-access-token" field
     const accessToken = req.body.accessToken || req.headers["x-access-token"];

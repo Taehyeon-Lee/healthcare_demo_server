@@ -6,13 +6,21 @@ import * as db from "./database.js";
 import {refreshTokens,generateAccessToken, generateRefreshToken, verifyToken, updateTokens} from "./token.js";
 import dotenv from "dotenv";
 
+/**
+ * This is the server file that runs the server and handles the requests
+ * using express framework
+ */
+
+
 const app = express();
 app.use(cors());
 app.use(express.json()); // for read and parse json in req.body
 dotenv.config();
 
 
-// Create a new user
+/**
+ *  REST API post request to register a new user
+ */
 app.post('/registerUser', async (req, res) => {
     const user = req.body.u_name;
     const hashedPassword = await bcrypt.hash(req.body.u_password,10);
@@ -43,7 +51,9 @@ app.post('/registerUser', async (req, res) => {
 }); // end of app.post create new user
 
 
-// Login user
+/**
+ * REST API post request to login a user
+ */
 app.post('/login', async (req, res) =>{
     const user = req.body.u_name;
     const password =req.body.u_password;
@@ -82,6 +92,9 @@ app.post('/login', async (req, res) =>{
 }); // end of app.post login user
 
 
+/**
+ * REST API post request to authenticate user with token
+ */
 app.post('/authenticate/user', verifyToken, (req, res) => {
     console.log("Test token verification app post")
     console.log(req.body);
@@ -90,10 +103,9 @@ app.post('/authenticate/user', verifyToken, (req, res) => {
     res.send(`${req.user.user} successfully accessed post`).status(200);
 });
 
-app.post('/updateTokens', (req, res) => {
-
-});
-
+/**
+ * REST API get request to get user's health stats
+ */
 app.get('/healthStats/:id', async (req, res) => {
     const uid = req.params.id;
     try {
